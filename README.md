@@ -5,5 +5,5 @@
    The research folder contains a document containng research questions I have formulated and notes I have taken. It also contains reports/artciles that serve as good     
    literature for the topic.
 
-## Web Scarping Folder
-    This folder contains code used for web-scraping, along with the data collected from different websites.
+## Web Scraping Folder
+   This folder contains code used for web-scraping, along with the data collected from different websites.
