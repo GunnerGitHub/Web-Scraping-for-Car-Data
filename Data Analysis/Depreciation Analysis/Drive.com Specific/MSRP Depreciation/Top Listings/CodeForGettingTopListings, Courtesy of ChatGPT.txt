@@ -1,0 +1,70 @@
+# Code is provided by ChatGPT and edited, prompt used was:
+# I want to group rows that have the same Year, Make, Model, Car Type, Fuel Type. Then, for those groups, 
+# if they are not electric, delete the groups with count less than 10. If they are electric, delete the groups with count less than 3.
+
+# I was able to get the the excel with the top listings throguh the site and downlaod it
+
+# Group by the required columns and get the count of listings
+grouped_df = df.groupby(['Year', 'Make', 'Model', 'Fuel Type', 'Car Type']).size().reset_index(name='Count')
+
+import ace_tools as tools; tools.display_dataframe_to_user(name="Grouped Cars Data", dataframe=grouped_df)
+
+grouped_df.head()
+
+# Filter and sort the data according to the given criteria
+
+# Define filters for various conditions
+def filter_and_get_top_n(data, year, build, fuel_exclude, top_n):
+    filtered_data = data[(data['Year'] == year) & (data['Car Build'] == build) & (~data['Fuel Type'].isin(fuel_exclude))]
+    top_data = filtered_data.nlargest(top_n, 'Count')
+    return top_data
+
+def filter_and_get_top_n_fuel(data, year, build, fuel_include, top_n):
+    filtered_data = data[(data['Year'] == year) & (data['Car Build'] == build) & (data['Fuel Type'].isin(fuel_include))]
+    top_data = filtered_data.nlargest(top_n, 'Count')
+    return top_data
+
+def filter_and_get_top_n_all(data, year, fuel_include, top_n):
+    filtered_data = data[(data['Year'] == year) & (data['Fuel Type'].isin(fuel_include))]
+    top_data = filtered_data.nlargest(top_n, 'Count')
+    return top_data
+
+# Get unique years
+years = data['Year'].unique()
+
+# Initialise an empty list to store results
+result_data = []
+
+# Define the conditions
+conditions = [
+    {'build': 'SUV', 'fuel_exclude': ['Electric', 'Hybrid'], 'top_n': 4},
+    {'build': 'UTE', 'fuel_exclude': ['Electric', 'Hybrid'], 'top_n': 2},
+    {'build': 'OTHER', 'fuel_exclude': ['Electric', 'Hybrid'], 'top_n': 2},
+    {'build': 'SUV', 'fuel_include': ['Hybrid'], 'top_n': 3},
+    {'build': None, 'fuel_include': ['Hybrid'], 'top_n': 2, 'not_build': 'SUV'},
+    {'build': None, 'fuel_include': ['Electric'], 'top_n': 5}
+]
+
+# Process each year for each condition
+for year in years:
+    for condition in conditions:
+        if 'fuel_exclude' in condition:
+            top_data = filter_and_get_top_n(data, year, condition['build'], condition['fuel_exclude'], condition['top_n'])
+        elif 'fuel_include' in condition:
+            if condition['build']:
+                top_data = filter_and_get_top_n_fuel(data, year, condition['build'], condition['fuel_include'], condition['top_n'])
+            else:
+                if 'not_build' in condition:
+                    filtered_data = data[(data['Year'] == year) & (~data['Car Build'].str.contains(condition['not_build'])) & (data['Fuel Type'].isin(condition['fuel_include']))]
+                    top_data = filtered_data.nlargest(condition['top_n'], 'Count')
+                else:
+                    top_data = filter_and_get_top_n_all(data, year, condition['fuel_include'], condition['top_n'])
+        result_data.append(top_data)
+
+# Concatenate all results into a single dataframe
+final_result = pd.concat(result_data)
+
+import ace_tools as tools; tools.display_dataframe_to_user(name="Filtered Car Data", dataframe=final_result)
+
+# Display the final result
+final_result.head()
