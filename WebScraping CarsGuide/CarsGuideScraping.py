@@ -13,6 +13,7 @@ import os
 import time
 import requests
 import csv
+import re
 from datetime import datetime
 
 # Extract day and month
@@ -21,7 +22,7 @@ day = today.day
 month = today.strftime("%m")  # Zero-padded month
 
 # Constants for URLs and CSV file path
-CSV_FILE_PATH = "CarsGuide_{day}.{month}.csv"
+CSV_FILE_PATH = f"CarsGuide_{day}.{month}.csv"
 LINKS = {
     "Electric": "https://www.carsguide.com.au/buy-a-car/used/electric-vehicle?page={}",
     "Hybrid": "https://www.carsguide.com.au/buy-a-car/used/hybrid?page={}",
@@ -47,23 +48,29 @@ def extract_data(market_soup, fuel_type, car_type):
     - list: List of dictionaries representing car listings.
     - bool: True if more pages are available, False otherwise.
     """
+    
+    # Find all div elements that contain car listing details
     vehicles_list = []
     car_listings = market_soup.find_all('div', class_='carListing--content')
     
-    # For each car listing, get key details. Classes are manually found by inspecting element in webpage.
     for listing in car_listings:
+        # Extracting advertised price
         price_tag = listing.find('span', class_='carListingPrice--advertisedPrice')
         price = price_tag.text.strip() if price_tag else 'N/A'
         
+        # Extracting mileage
         mileage_tag = listing.find('span', class_='carListing--mileage')
         mileage = mileage_tag.text.strip() if mileage_tag else 'N/A'
         
+        # Extracting title (including make, model, and variant)
         title_tag = listing.find('h3', class_='carListing--title')
         title = title_tag.text.strip() if title_tag else 'N/A'
         
+        # Extracting dealer status
         dealer_status_tag = listing.find('div', class_='carListing--adType')
         dealer_status = dealer_status_tag.text.strip() if dealer_status_tag else 'N/A'
         
+        # Extracting location
         location_tag = listing.find('div', class_='carListing--location')
         location = location_tag.text.strip() if location_tag else 'N/A'
         
@@ -73,9 +80,11 @@ def extract_data(market_soup, fuel_type, car_type):
         if title != 'N/A':
             year, make, model = title.split(maxsplit=2)
         else:
-            year, make, model = 'N/A', 'N/A', 'N/A'
+            year = 'N/A'
+            make = 'N/A'
+            model = 'N/A'
             
-        scraping_time = int(time.time())  # Current Unix timestamp
+        scraping_time = int(time.time())  # Get the current time in Unix timestamp format
         
         vehicles_list.append({
             'Year': year,
@@ -85,13 +94,14 @@ def extract_data(market_soup, fuel_type, car_type):
             'Mileage': mileage,
             'Location': location,
             'Dealer Status': dealer_status,
-            'Additional': drive_away,
+            'Additional' : drive_away,
             'Fuel Type': fuel_type,
             'Car Type': car_type,
             'Scraping Time': scraping_time
         })
     
     to_continue = len(car_listings) > 0
+            
     return vehicles_list, to_continue
 
 def scrape_page(page_number, url_template, fuel_type, car_type):
