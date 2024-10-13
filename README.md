@@ -26,19 +26,9 @@ Focuses on analyzing how different car models depreciate over time, with specifi
 #### ElectricVehiclesInfoFromShowroomLinks.xlsx: Dataset containing details on EVs collected from the showroom.
 #### RangeAnalysis.ipynb: Analyzes the ranges of electric vehicles, comparing the data gathered through scraping to real-world performance.
 
-### Top Listings:
-#### CarsInListings.xlsx: Data about cars that frequently appear in top listings on Drive.com.
-CodeForGettingTopListings, Courtesy of ChatGPT.txt: Code provided to extract top car listings.
-Grouped_Cars_Data.csv: Grouped data for the top cars in the listings.
-Top Cars in Listings.csv: CSV file containing details of the top cars by listing frequency.
-General Statistics
-StatisticsSummary.ipynb: Provides general statistical insights into the collected car data, including distribution and summary statistics for various variables.
-Mileage Analysis
-This section analyzes vehicle mileage accumulation, looking at how different factors such as fuel type and car model affect mileage.
-
 ### MileageAnalysis.ipynb: Detailed notebook that analyzes mileage trends across different vehicle models and categories.
 ## 2. Web Scraping
 Contains Python scripts used for web scraping from car-related websites.
 
-### CarsGuideScraping.py: Scrapes car data from CarsGuide, focusing on vehicle specifications and listings.
-### DriveScraping.py: Scrapes car data from Drive.com, used for the depreciation and listing analysis.
+#### CarsGuideScraping.py: Scrapes car data from CarsGuide, focusing on vehicle specifications and listings.
+#### DriveScraping.py: Scrapes car data from Drive.com, used for the depreciation and listing analysis.
