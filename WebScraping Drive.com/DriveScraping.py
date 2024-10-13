@@ -7,7 +7,6 @@ Email: gunit.singh@uq.net.au
 Note: Website has approx 20,000-25,000 Vehicles
 """
 
-from splinter import Browser
 from bs4 import BeautifulSoup as soup
 import pandas as pd
 import os
