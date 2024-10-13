@@ -36,7 +36,8 @@ Dataset containing details on EVs collected from the showroom.
 #### RangeAnalysis.ipynb: 
 Analyses the ranges of electric vehicles, comparing the data gathered through scraping to real-world performance.
 
-### MileageAnalysis.ipynb: Detailed notebook that analyzes mileage trends across different vehicle models and categories.
+#### MileageAnalysis.ipynb: 
+Detailed notebook that analyzes mileage trends across different vehicle models and categories.
 ## 2. Web Scraping
 Contains Python scripts used for web scraping from car-related websites.
 
