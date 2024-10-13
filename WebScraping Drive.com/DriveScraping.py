@@ -22,7 +22,7 @@ day = today.day
 month = today.strftime("%m")  # Zero-padded month
 
 # Configuration for the base URL of the website to scrape and the path for the output CSV file.
-CSV_FILE_PATH = "Drive_MarketPlace_Data_{day}.{month}.csv"
+CSV_FILE_PATH = f"Drive_MarketPlace_Data_{day}.{month}.csv"
 PAGES = 760
 
 def extract_data(market_soup):
@@ -37,26 +37,34 @@ def extract_data(market_soup):
               'Year', 'Make', 'Model', 'Price', 'Mileage', 'Location', 'Additional', 'Fuel Type', 
               'Car Type', and 'Scraping Time'.
     """
+    # Update the class name to match the new structure
     car_listings = market_soup.find_all('div', class_='marketplace-listing-card_drive-model-card__content__dyji4')
     vehicles_list = []
     
     for listing in car_listings:
-        car_title = listing.find('h3', class_='truncate-2').text.strip()
-        year, make, model = car_title.split(maxsplit=2)
         
-        car_type = listing.find('div', class_='marketplace-listing-card_drive-model-card__shortDescription__aCru1').text.strip()
+        # Extract Year, Make, Model from the listing title.
+        car_title = listing.find('h3', class_='truncate-2').text.strip()
+        
+        year, make, model = car_title.split(maxsplit=2)  # Assuming format "Year Make Model"
+        
+        # Updated class names for the description and type
+        car_type = listing.find('div', class_='title-short-description_d_container__shortDescription__pTuw5').text.strip()
         
         price_container = listing.find('div', class_='listing-card-price-info_drive-listing-card-price-info__tgUlF')
-        if price_container and price_container.find('span', class_='amount') and price_container.find('span', class_='type'):
-            price = price_container.find('span', class_='amount').text.strip()
-            drive_away = price_container.find('span', class_='type').text.strip()
-        else:
+        # Updated class names for the price container
+        if price_container.find('span', class_='amount') is None or price_container.find('span', class_='type') is None:
             continue
+        else:        
+            price = price_container.find('span', class_='amount').text.strip() if price_container else 'N/A'
+            drive_away = price_container.find('span', class_='type').text.strip() if price_container else 'N/A'
     
-        specs = listing.find('div', class_='marketplace-listing-card_drive-model-card__specs__STPt7')
+        specs = listing.find('div', class_='listing-card-specs_d-listing-card-specs__specs__40ZSd')
+        
         mileage = None
         fuel_type = None
         location = None
+        transmission = None
         if specs:
             for spec in specs.find_all('span'):
                 img_alt = spec.find('img')['alt']
@@ -66,12 +74,16 @@ def extract_data(market_soup):
                     fuel_type = spec.text.strip()
                 elif 'LocationSpecsIcon' in img_alt:
                     location = spec.text.strip()
+                elif 'TransmissionSpecsIcon' in img_alt:
+                    transmission = spec.text.strip()
         
-        if None in (mileage, fuel_type, location):
+        # Ensure all required details are present before adding to the list
+        if None in (mileage, fuel_type, location, transmission):
             continue
                 
-        scraping_time = int(time.time())
+        scraping_time = int(time.time())  # Get the current time in Unix timestamp format
         
+        # Append the extracted details, including the URL, to the list
         vehicles_list.append({
             'Year': year,
             'Make': make,
@@ -82,6 +94,7 @@ def extract_data(market_soup):
             'Additional': drive_away,
             'Fuel Type': fuel_type,
             'Car Type': car_type,
+            "Transmission" : transmission,
             'Scraping Time': scraping_time
         })
     
